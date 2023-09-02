@@ -1,5 +1,9 @@
 # Write your code here
-import random
+from random import randint
+from random import shuffle
+
+AMOUNT_OF_INIT_DOMINOES_PER_PLAYER = 7
+AMOUNT_OF_STOCK_PIECES = 14
 
 
 def generate_domino_set():
@@ -8,15 +12,6 @@ def generate_domino_set():
         for j in range(i, 7):
             domino_set.append([i, j])
     return domino_set
-
-
-def pick_random_dominos(domino_set, param):
-    new_domino_set = []
-    for i in range (param):
-        random_number = random.randint(0, len(domino_set)-1)
-        new_domino_set.append(domino_set[random_number])
-        domino_set.remove(domino_set[random_number])
-    return new_domino_set, domino_set
 
 
 def get_starting_domino(computer_set, player_set):
@@ -48,9 +43,10 @@ def get_starting_player(computer_set, player_set):
 
 def main():
     domino_set = generate_domino_set()
-    player_set, domino_set = pick_random_dominos(domino_set, 7)
-    computer_set, domino_set = pick_random_dominos(domino_set, 7)
-    stock_pieces, domino_set = pick_random_dominos(domino_set, 14)
+    shuffle(domino_set)
+    player_set = domino_set[0:AMOUNT_OF_INIT_DOMINOES_PER_PLAYER]
+    computer_set = domino_set[AMOUNT_OF_INIT_DOMINOES_PER_PLAYER:AMOUNT_OF_STOCK_PIECES]
+    stock_pieces = domino_set[AMOUNT_OF_STOCK_PIECES:]
     starting_domino = get_starting_domino(computer_set, player_set)
     starting_player = get_starting_player(computer_set, player_set)
     print_result(stock_pieces, computer_set, player_set, starting_domino, starting_player)
