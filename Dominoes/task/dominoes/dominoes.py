@@ -11,7 +11,7 @@ def main():
     current_player = get_starting_player(computer, player)
     # Game loop
     while True:
-        display_interface(stock, player, computer, snake, current_player)
+        display_interface(stock, player, computer, snake)
         game_is_over(player, computer, snake)
         if current_player == "player":
             print("Status: It's your turn to make a move. Enter your command:")
@@ -152,7 +152,7 @@ def display_player_pieces(player):
 
 
 def is_draw(snake):
-    if snake[0][0] == snake[-1][1] :
+    if snake[0][0] == snake[-1][1]:
         counter = 0
         for tile in snake:
             counter += tile.count(snake[0][0])
@@ -175,7 +175,7 @@ def display_snake(snake):
         print()
 
 
-def display_interface(stock, player, computer, snake, starting_player):
+def display_interface(stock, player, computer, snake):
     print("="*70)
     print(f"Stock size: {len(stock)}")
     print(f"Computer pieces: {len(computer)}")
