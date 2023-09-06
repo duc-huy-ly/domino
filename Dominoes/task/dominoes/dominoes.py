@@ -13,47 +13,45 @@ def game_is_over(player, computer, snake):
         return True
 
 
-def is_valid(user_input, player, stock):
-    if user_input == 0:
-        if len(stock) > 0:
-            return True
-        return False
-    return abs(user_input) <= len(player)
-
-
-def add_domino_to_snake(index, player, snake, stock):
-    if index < 0:
-        # Add to the left
-        value = player[abs(index) - 1]
+def play_move(chosen_number, player, snake,stock):
+    if chosen_number == 0:
+        if len(snake)==0:
+            pass
+        else:
+            value = stock.pop()
+            player.append(value)
+    elif chosen_number < 0:
+        index = abs(chosen_number) - 1
+        value = player[index]
         snake.insert(0, value)
         player.remove(value)
-    elif index > 0:
-        value = player(index - 1)
+    elif chosen_number > 0:
+        index = chosen_number - 1
+        value = player[index]
         snake.append(value)
         player.remove(value)
-    elif index == 0:
-        if len(stock) > 0:
-            element_from_stock = stock.pop()
-            player.append(element_from_stock)
-        else:
-            print("Nothing to take from stock")
-            pass
 
 
 def handle_user_input(stock, player, snake, current_player):
-    try:
-        user_input = int(input())
-        if is_valid(user_input, player, stock):
-            add_domino_to_snake(user_input, player, snake, stock)
-    except ValueError:
-        print("Illegal move. Please try again")
-    pass
+    is_valid = False
+    while not is_valid:
+        try:
+            user_choice = int(input())
+            if abs(user_choice) > len(player) or (user_choice==0 and len(stock)==0):
+                raise ValueError
+            play_move(user_choice, player, snake, stock)
+            is_valid = True
+        except ValueError:
+            print("Invalid input. Please try again.")
 
 
-def handle_computer_decision(stock, computer, snake, current_player):
-    # TODO
-    #here
-    pass
+def handle_computer_decision(stock, computer, snake):
+    # Wait for user to enter something to continue
+    input()
+    # Pick random number
+    random_number = randint(-len(computer), len(computer))
+    play_move(random_number, computer, snake, stock)
+
 
 
 def main():
@@ -67,8 +65,10 @@ def main():
         display_interface(stock, player, computer, snake, current_player)
         if current_player == "player":
             handle_user_input(stock, player, snake, current_player)
+            current_player = "computer"
         elif current_player == "computer":
-            handle_computer_decision(stock, computer, snake, current_player)
+            handle_computer_decision(stock, computer, snake)
+            current_player = "player"
 
     display_interface(stock, player, computer, snake, current_player)
 
@@ -116,13 +116,13 @@ def display_status(starting_player, computer, player, stock):
     if is_draw(stock):
         print("Status : Draw")
     elif starting_player == "computer":
-        if len(computer) == 0:
-            print("Status : computer won")
+        if len(player) == 0:
+            print("Status : The game is over. You won!")
         else:
             print("Status: Computer is about to make a move. Press Enter to continue...")
     elif starting_player == "player":
-        if len(player) == 0:
-            print("Status : you won!")
+        if len(computer) == 0:
+            print("Status : The game is over. The computer won")
         else:
             print("Status: It's your turn to make a move. Enter your command:")
 
@@ -130,10 +130,15 @@ def display_status(starting_player, computer, player, stock):
 def display_snake(snake):
     if len(snake) < 6:
         for i in snake:
-            print(i)
-    pass
-
-
+            print(i, end="")
+        print()
+    else:
+        for i in range(3):
+            print(snake[i], end="")
+        print("...", end="")
+        for i in range(len(snake)-3, len(snake),1):
+            print(snake[i], end="")
+        print()
 def display_interface(stock, player, computer, snake, starting_player):
     print("="*70)
     print(f"Stock size: {len(stock)}")
