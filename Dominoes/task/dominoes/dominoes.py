@@ -8,12 +8,11 @@ def main():
     player, computer, stock = shuffle_dominos()
     snake = get_starting_domino(player, computer)
     current_player = get_starting_player(computer, player)
-    status = ""
     # Game loop
     while not game_is_over(player, computer, snake):
         display_interface(stock, player, computer, snake, current_player)
         if current_player == "player":
-            handle_user_input(stock, player, snake, current_player)
+            handle_user_input(stock, player, snake)
             current_player = "computer"
         elif current_player == "computer":
             handle_computer_decision(stock, computer, snake)
@@ -29,9 +28,9 @@ def game_is_over(player, computer, snake):
         return True
 
 
-def play_move(chosen_number, player, snake,stock):
+def play_move(chosen_number, player, snake, stock):
     if chosen_number == 0:
-        if len(snake)==0:
+        if len(snake) == 0:
             pass
         else:
             value = stock.pop()
@@ -48,12 +47,12 @@ def play_move(chosen_number, player, snake,stock):
         player.remove(value)
 
 
-def handle_user_input(stock, player, snake, current_player):
+def handle_user_input(stock, player, snake):
     is_valid = False
     while not is_valid:
         try:
             user_choice = int(input())
-            if abs(user_choice) > len(player) or (user_choice==0 and len(stock)==0):
+            if abs(user_choice) > len(player) or (user_choice == 0 and len(stock) == 0):
                 raise ValueError
             play_move(user_choice, player, snake, stock)
             is_valid = True
@@ -131,7 +130,7 @@ def display_snake(snake):
         for i in range(3):
             print(snake[i], end="")
         print("...", end="")
-        for i in range(len(snake)-3, len(snake),1):
+        for i in range(len(snake)-3, len(snake), 1):
             print(snake[i], end="")
         print()
 
