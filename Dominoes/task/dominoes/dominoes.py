@@ -1,4 +1,5 @@
 # Write your code here
+import sys
 from random import randint
 from random import shuffle
 
@@ -9,28 +10,46 @@ def main():
     snake = get_starting_domino(player, computer)
     current_player = get_starting_player(computer, player)
     # Game loop
-    while not game_is_over(player, computer, snake):
+    while True:
         display_interface(stock, player, computer, snake, current_player)
+        game_is_over(player, computer, snake)
         if current_player == "player":
+            print("Status: It's your turn to make a move. Enter your command:")
             handle_user_input(stock, player, snake)
             current_player = "computer"
         elif current_player == "computer":
+            print("Status: Computer is about to make a move. Press Enter to continue...")
             handle_computer_decision(stock, computer, snake)
             current_player = "player"
 
-    display_interface(stock, player, computer, snake, current_player)
-
 
 def game_is_over(player, computer, snake):
-    if len(player) == 0 or len(computer) == 0:
-        return True
-    if is_draw(snake):
-        return True
+    """Checks if one of the players won or if the game can not be won anymore"""
+
+    if len(player) == 0:
+        print("\nStatus: The game is over. You won!")
+        sys.exit()
+    elif len(computer) == 0:
+        print("\nStatus: The game is over. The computer won!")
+        sys.exit()
+    elif snake[0][0] == snake[-1][1]:
+        counter = 0
+        for tile in snake:
+            counter += tile.count(snake[0][0])
+            if counter == 8:
+                print("\nStatus: The game is over. It's a draw!")
+                sys.exit()
+
+
+def swap(value):
+    temp = value[0]
+    value[0] = value[1]
+    value[1] = temp
 
 
 def play_move(chosen_number, player, snake, stock):
     if chosen_number == 0:
-        if len(snake) == 0:
+        if len(stock) == 0:
             pass
         else:
             value = stock.pop()
@@ -38,13 +57,36 @@ def play_move(chosen_number, player, snake, stock):
     elif chosen_number < 0:
         index = abs(chosen_number) - 1
         value = player[index]
+        # We need to check if re-orientation is needed
+        if snake[0][0] != value[1]:
+            swap(value)
         snake.insert(0, value)
         player.remove(value)
     elif chosen_number > 0:
         index = chosen_number - 1
         value = player[index]
+        if snake[-1][1] != value[0]:
+            swap(value)
         snake.append(value)
         player.remove(value)
+
+
+def move_is_not_valid(chosen_number, player, snake):
+    if chosen_number == 0:
+        return False
+    elif chosen_number < 0:
+        index = abs(chosen_number) - 1
+        value = player[index]
+        # Inserting to the right of the snake. The second coord of player should
+        # match with the first fo the snake
+        if snake[0][0] not in value:
+            return True
+    elif chosen_number > 0:
+        index = chosen_number - 1
+        value = player[index]
+        if snake[-1][1] not in value:
+            return True
+    return False
 
 
 def handle_user_input(stock, player, snake):
@@ -52,20 +94,28 @@ def handle_user_input(stock, player, snake):
     while not is_valid:
         try:
             user_choice = int(input())
-            if abs(user_choice) > len(player) or (user_choice == 0 and len(stock) == 0):
+            if abs(user_choice) > len(player):
                 raise ValueError
+            if move_is_not_valid(user_choice, player, snake):
+                raise InvalidMoveException
             play_move(user_choice, player, snake, stock)
             is_valid = True
         except ValueError:
             print("Invalid input. Please try again.")
+        except InvalidMoveException:
+            print("Illegal move. Please try again.")
 
 
 def handle_computer_decision(stock, computer, snake):
     # Wait for user to enter something to continue
     input()
     # Pick random number
-    random_number = randint(-len(computer), len(computer))
-    play_move(random_number, computer, snake, stock)
+    is_valid = False
+    while not is_valid:
+        random_number = randint(-len(computer), len(computer))
+        if not move_is_not_valid(random_number, computer, snake):
+            play_move(random_number, computer, snake, stock)
+            is_valid = True
 
 
 def shuffle_dominos():
@@ -99,26 +149,16 @@ def display_player_pieces(player):
     for i in player:
         print(f"{j}:{i}")
         j += 1
-    pass
 
 
 def is_draw(snake):
-    return snake[0][0] == snake[-1][1] and snake.count(snake[0][0]) == 8
-
-
-def display_status(starting_player, computer, player, stock):
-    if is_draw(stock):
-        print("Status : Draw")
-    elif starting_player == "computer":
-        if len(player) == 0:
-            print("Status : The game is over. You won!")
-        else:
-            print("Status: Computer is about to make a move. Press Enter to continue...")
-    elif starting_player == "player":
-        if len(computer) == 0:
-            print("Status : The game is over. The computer won")
-        else:
-            print("Status: It's your turn to make a move. Enter your command:")
+    if snake[0][0] == snake[-1][1] :
+        counter = 0
+        for tile in snake:
+            counter += tile.count(snake[0][0])
+            if counter == 8:
+                return True
+    return False
 
 
 def display_snake(snake):
@@ -141,13 +181,17 @@ def display_interface(stock, player, computer, snake, starting_player):
     print(f"Computer pieces: {len(computer)}")
     display_snake(snake)
     display_player_pieces(player)
-    display_status(starting_player, computer, player, stock)
 
 
 def get_starting_player(computer_set, player_set):
     if len(computer_set) < len(player_set):
         return "player"
     return "computer"
+
+
+class InvalidMoveException(Exception):
+    """When the dominos don't match"""
+    pass
 
 
 if __name__ == "__main__":
