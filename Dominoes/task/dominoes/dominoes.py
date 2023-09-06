@@ -2,8 +2,24 @@
 from random import randint
 from random import shuffle
 
-AMOUNT_OF_INIT_DOMINOES_PER_PLAYER = 7
-AMOUNT_OF_STOCK_PIECES = 14
+
+def main():
+    # Initialisation
+    player, computer, stock = shuffle_dominos()
+    snake = get_starting_domino(player, computer)
+    current_player = get_starting_player(computer, player)
+    status = ""
+    # Game loop
+    while not game_is_over(player, computer, snake):
+        display_interface(stock, player, computer, snake, current_player)
+        if current_player == "player":
+            handle_user_input(stock, player, snake, current_player)
+            current_player = "computer"
+        elif current_player == "computer":
+            handle_computer_decision(stock, computer, snake)
+            current_player = "player"
+
+    display_interface(stock, player, computer, snake, current_player)
 
 
 def game_is_over(player, computer, snake):
@@ -53,26 +69,6 @@ def handle_computer_decision(stock, computer, snake):
     play_move(random_number, computer, snake, stock)
 
 
-
-def main():
-    # Initialisation
-    player, computer, stock = shuffle_dominos()
-    snake = get_starting_domino(player, computer)
-    current_player = get_starting_player(computer, player)
-    status = ""
-    # Game loop
-    while not game_is_over(player, computer, snake):
-        display_interface(stock, player, computer, snake, current_player)
-        if current_player == "player":
-            handle_user_input(stock, player, snake, current_player)
-            current_player = "computer"
-        elif current_player == "computer":
-            handle_computer_decision(stock, computer, snake)
-            current_player = "player"
-
-    display_interface(stock, player, computer, snake, current_player)
-
-
 def shuffle_dominos():
     domino_set = []
     for i in range(7):
@@ -111,7 +107,6 @@ def is_draw(snake):
     return snake[0][0] == snake[-1][1] and snake.count(snake[0][0]) == 8
 
 
-
 def display_status(starting_player, computer, player, stock):
     if is_draw(stock):
         print("Status : Draw")
@@ -139,6 +134,8 @@ def display_snake(snake):
         for i in range(len(snake)-3, len(snake),1):
             print(snake[i], end="")
         print()
+
+
 def display_interface(stock, player, computer, snake, starting_player):
     print("="*70)
     print(f"Stock size: {len(stock)}")
