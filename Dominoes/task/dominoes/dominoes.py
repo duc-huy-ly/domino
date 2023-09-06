@@ -52,6 +52,7 @@ def handle_user_input(stock, player, snake, current_player):
 
 def handle_computer_decision(stock, computer, snake, current_player):
     # TODO
+    #here
     pass
 
 
