@@ -1,6 +1,5 @@
 # Write your code here
 import sys
-from random import randint
 from random import shuffle
 
 
@@ -72,6 +71,7 @@ def play_move(chosen_number, player, snake, stock):
 
 
 def move_is_not_valid(chosen_number, player, snake):
+    """Check if the user can put the piece on left or right"""
     if chosen_number == 0:
         return False
     elif chosen_number < 0:
@@ -106,16 +106,54 @@ def handle_user_input(stock, player, snake):
             print("Illegal move. Please try again.")
 
 
+def count_numbers_in_hand_and_snake(snake, computer):
+    my_dict = {}
+    for i in range(7):
+        counter = 0
+        for j in computer:
+            counter += j.count(i)
+        for k in snake:
+            counter += k.count(i)
+        my_dict[i] = counter
+    scores = {}
+    for element in computer:
+        total = element[1] + element[0]
+        scores[total] = element
+    my_keys = list(scores.keys())
+    my_keys.sort(reverse=True)
+    sorted_scores = {i: scores[i] for i in my_keys}
+    return sorted_scores
+
+
 def handle_computer_decision(stock, computer, snake):
     # Wait for user to enter something to continue
     input()
-    # Pick random number
-    is_valid = False
-    while not is_valid:
-        random_number = randint(-len(computer), len(computer))
-        if not move_is_not_valid(random_number, computer, snake):
-            play_move(random_number, computer, snake, stock)
-            is_valid = True
+    has_inserted_into_snake = False
+    dominos_sorted_by_score = count_numbers_in_hand_and_snake(snake, computer)
+    for computers_domino in dominos_sorted_by_score.values():
+        # Try to put the domino to the left
+        if snake[0][0] in computers_domino:
+            # If the numbers don't match
+            if snake[0][0] != computers_domino[1]:
+                swap(computers_domino)
+            snake.insert(0, computers_domino)
+            computer.remove(computers_domino)
+            has_inserted_into_snake = True
+            break
+        elif snake[-1][1] in computers_domino:
+            if snake[-1][1] != computers_domino[0]:
+                swap(computers_domino)
+            snake.append(computers_domino)
+            computer.remove(computers_domino)
+            has_inserted_into_snake = True
+            break
+        else:
+            pass
+    # At the end, if no criteria are met, just grab a piece from the stock and add to the hand
+    if not has_inserted_into_snake and len(stock) != 0:
+        computer.append(stock.pop())
+    else:
+        pass
 
 
 def shuffle_dominos():
